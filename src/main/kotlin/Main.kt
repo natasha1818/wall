@@ -15,45 +15,39 @@ data class Post(
     val isFavorite: Boolean = true //true, если объект добавлен в закладки у текущего пользователя.
 ) {}
 object WallService {
+    var lastId = 0
     var posts = emptyArray<Post>()
     fun add(post: Post): Post {
-        val newIdPost = post.copy(id = rand(1000, 2000))
+        val newIdPost = post.copy(id = lastId+1)
         posts += newIdPost
+        lastId++
         return posts.last()
     }
-    fun rand(start: Int, end: Int): Int {
-        require(start <= end) { "Illegal Argument" }
-        return Random(System.nanoTime()).nextInt(start, end + 1)
-    }
+
     fun update(post: Post): Boolean {
-        var counter = 0
-        for ((index, newIdPost) in posts.withIndex()) {
-            if (newIdPost.ownerId == post.ownerId) {
-                val newPost = newIdPost.copy(
-                    ownerId = post.ownerId,
-                    text = post.text,
-                    friendsOnly = post.friendsOnly,
-                    canPin = post.canPin,
-                    canDelete = post.canDelete,
-                    canEdit = post.canEdit,
-                    isFavorite = post.isFavorite
-                )
-                posts[index] = newPost
-                counter += 10
-            }
-        }
-        if (counter == 0) {
-            println(false)
-            return false
-        } else {
-            println(true)
-            return true
-        }
+       for ((index, id) in posts.withIndex()) {
+           if (posts[index].id == post.id) {
+               val newPost = posts[index].copy(
+                   ownerId = post.ownerId,
+                   text = post.text,
+                   friendsOnly = post.friendsOnly,
+                   canPin = post.canPin,
+                   canDelete = post.canDelete,
+                   canEdit = post.canEdit,
+                   isFavorite = post.isFavorite
+               )
+               posts[index] = newPost
+               return true
+           }
+       }
+           return false
+
+
     }
 
-    fun printPost(ownerId: Int) {
+    fun printPost(id: Int) {
         for ((index, newIdPost) in posts.withIndex()) {
-            if (newIdPost.ownerId == ownerId) {
+            if (newIdPost.id == id) {
                 println(
                     """
       № ${newIdPost.id}
@@ -105,7 +99,7 @@ fun main() {
         false,
     )
     val post4 = Post(
-        0,
+        8,
         65699,
         6565,
         "01/02/2023",
@@ -116,7 +110,7 @@ fun main() {
         true,
     )
     val post5 = Post(
-        0,
+        3,
         6565,
         2222,
         "01/02/2023",
@@ -129,11 +123,11 @@ fun main() {
     WallService.add(post)
     WallService.add(post2)
     WallService.add(post3)
-    WallService.printPost(6565)
+    WallService.printPost(3)
     WallService.update(post5)
     WallService.update(post4)
-    WallService.printPost(65699)
-    WallService.printPost(6565)
+    WallService.printPost(3)
+    WallService.printPost(8)
 
 }
 
